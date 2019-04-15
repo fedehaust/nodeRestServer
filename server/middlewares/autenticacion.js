@@ -19,15 +19,16 @@ let checkToken = (req, res, next) => {
 
 let checkAdmin = (req, res, next) => {
     let user = req.usuario;
-    if (user.role !== 'ADMIN_ROLE') {
-        return res.status(401).json({
-            ok: false,
-            error: {
-                message: 'Usuario sin permisos para la operación.'
-            },
-        });
+    if (user.role === 'ADMIN_ROLE') {
+        next();
     }
-    next();
+
+    return res.status(401).json({
+        ok: false,
+        error: {
+            message: 'Usuario sin permisos para la operación.'
+        },
+    });
 };
 
 module.exports = {
