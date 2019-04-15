@@ -21,6 +21,7 @@ let checkAdmin = (req, res, next) => {
     let user = req.usuario;
     if (user.role === 'ADMIN_ROLE') {
         next();
+        return;
     }
 
     return res.status(401).json({
