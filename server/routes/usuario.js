@@ -4,9 +4,12 @@ const app = express();
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
 const _ = require('underscore');
+const { checkToken, checkAdmin } = require('../middlewares/autenticacion');
 
 
-app.get('/usuario', function(req, res) {
+
+app.get('/usuario', checkToken, (req, res) => {
+
     const from = Number(req.query.desde) || 0;
     const to = Number(req.query.hasta) || 5;
 
@@ -21,7 +24,7 @@ app.get('/usuario', function(req, res) {
                     message: 'Ocurrio un error obteniendo los usuarios'
                 });
             }
-            Usuario.count({ status: true }, (errorCount, count) => {
+            Usuario.countDocuments({ status: true }, (errorCount, count) => {
                 if (errorCount) {
                     return res.status(400).json({
                         ok: false,
@@ -37,7 +40,7 @@ app.get('/usuario', function(req, res) {
             });
         });
 });
-app.post('/usuario', function(req, res) {
+app.post('/usuario', [checkToken, checkAdmin], (req, res) => {
     const body = req.body;
 
     let usuario = new Usuario({
@@ -64,19 +67,20 @@ app.post('/usuario', function(req, res) {
 
 });
 
-app.put('/usuario/:id', function(req, res) {
+app.put('/usuario/:id', [checkToken, checkAdmin], (req, res) => {
     const id = req.params.id;
     const body = _.pick(req.body, ['nombre', 'email', 'img', 'role', 'status']);
 
     Usuario.findByIdAndUpdate(id, body, {
         new: true,
-        runValidators: true
+        runValidators: true,
+        context: 'query'
     }, (error, usuarioDb) => {
         if (error) {
             return res.status(400).json({
                 ok: false,
                 error,
-                message: 'Ocurrio un error insertando el usuario'
+                message: 'Ocurrio un error actualizando el usuario'
             });
         }
 
@@ -87,7 +91,7 @@ app.put('/usuario/:id', function(req, res) {
 
     });
 });
-app.delete('/usuario/:id', function(req, res) {
+app.delete('/usuario/:id', [checkToken, checkAdmin], (req, res) => {
     const id = req.params.id;
     const body = { status: false };
     Usuario.findByIdAndUpdate(id, body, {

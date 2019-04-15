@@ -10,3 +10,6 @@ if (process.env.NODE_ENV === 'dev') {
 }
 
 process.env.URLDB = urlDB;
+
+process.env.TOKEN_EXPIRED = 60 * 60 * 24 * 30;
+process.env.TOKEN_SEED = process.env.TOKEN_SEED || 'esta_es_la_semilla_de_desa';
