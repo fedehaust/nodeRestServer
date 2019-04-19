@@ -1,19 +1,19 @@
 const express = require('express');
-const Usuario = require('../models/usuario');
+const User = require('../models/user');
 const app = express();
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
 const _ = require('underscore');
-const { checkToken, checkAdmin } = require('../middlewares/autenticacion');
+const { checkToken, checkAdmin } = require('../middlewares/authentication');
 
 
 
-app.get('/usuario', checkToken, (req, res) => {
+app.get('/user', checkToken, (req, res) => {
 
-    const from = Number(req.query.desde) || 0;
-    const to = Number(req.query.hasta) || 5;
+    const from = Number(req.query.from) || 0;
+    const to = Number(req.query.to) || 5;
 
-    Usuario.find({ status: true }, 'nombre email role status img google')
+    User.find({ status: true }, 'name email role status img google')
         .limit(to)
         .skip(from)
         .exec((error, users) => {
@@ -24,7 +24,7 @@ app.get('/usuario', checkToken, (req, res) => {
                     message: 'Ocurrio un error obteniendo los usuarios'
                 });
             }
-            Usuario.countDocuments({ status: true }, (errorCount, count) => {
+            User.countDocuments({ status: true }, (errorCount, count) => {
                 if (errorCount) {
                     return res.status(400).json({
                         ok: false,
@@ -40,17 +40,17 @@ app.get('/usuario', checkToken, (req, res) => {
             });
         });
 });
-app.post('/usuario', [checkToken, checkAdmin], (req, res) => {
+app.post('/user', [checkToken, checkAdmin], (req, res) => {
     const body = req.body;
 
-    let usuario = new Usuario({
-        nombre: body.nombre,
+    let user = new User({
+        name: body.name,
         email: body.email,
         password: bcrypt.hashSync(body.password, saltRounds),
         role: body.role,
     });
 
-    usuario.save((error, usuarioDb) => {
+    user.save((error, userDb) => {
         if (error) {
             return res.status(400).json({
                 ok: false,
@@ -61,21 +61,21 @@ app.post('/usuario', [checkToken, checkAdmin], (req, res) => {
 
         res.json({
             ok: true,
-            usuario: usuarioDb
+            userDb
         });
     })
 
 });
 
-app.put('/usuario/:id', [checkToken, checkAdmin], (req, res) => {
+app.put('/user/:id', [checkToken, checkAdmin], (req, res) => {
     const id = req.params.id;
-    const body = _.pick(req.body, ['nombre', 'email', 'img', 'role', 'status']);
+    const body = _.pick(req.body, ['name', 'email', 'img', 'role', 'status']);
 
-    Usuario.findByIdAndUpdate(id, body, {
+    User.findByIdAndUpdate(id, body, {
         new: true,
         runValidators: true,
         context: 'query'
-    }, (error, usuarioDb) => {
+    }, (error, userDb) => {
         if (error) {
             return res.status(400).json({
                 ok: false,
@@ -86,18 +86,18 @@ app.put('/usuario/:id', [checkToken, checkAdmin], (req, res) => {
 
         res.json({
             ok: true,
-            usuarioDb
+            userDb
         });
 
     });
 });
-app.delete('/usuario/:id', [checkToken, checkAdmin], (req, res) => {
+app.delete('/user/:id', [checkToken, checkAdmin], (req, res) => {
     const id = req.params.id;
     const body = { status: false };
-    Usuario.findByIdAndUpdate(id, body, {
+    User.findByIdAndUpdate(id, body, {
         new: true,
         runValidators: true
-    }, (error, usuarioDb) => {
+    }, (error, userDb) => {
         if (error) {
             return res.status(400).json({
                 ok: false,
@@ -108,10 +108,10 @@ app.delete('/usuario/:id', [checkToken, checkAdmin], (req, res) => {
 
         res.json({
             ok: true,
-            usuarioDb
+            userDb
         });
 
     });
 });
 
-module.exports = app
+module.exports = app;

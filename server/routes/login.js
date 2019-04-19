@@ -1,19 +1,15 @@
 const express = require('express');
-const Usuario = require('../models/usuario');
+const User = require('../models/user');
 const app = express();
 const bcrypt = require('bcrypt');
 var jwt = require('jsonwebtoken');
-const saltRounds = 10;
 const _ = require('underscore');
-const {
-    OAuth2Client
-} = require('google-auth-library');
+const { OAuth2Client } = require('google-auth-library');
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 app.post('/login', (req, res) => {
     const body = req.body;
-
-    Usuario.findOne({
+    User.findOne({
         email: body.email
     }, (error, userDB) => {
         if (error) {
@@ -41,14 +37,14 @@ app.post('/login', (req, res) => {
 
         }
         const token = jwt.sign({
-            usuario: userDB
+            user: userDB
         }, process.env.TOKEN_SEED, {
             expiresIn: process.env.TOKEN_EXPIRED,
         });
 
         res.json({
             ok: true,
-            userDB,
+            user: userDB,
             token,
         });
     });
@@ -65,9 +61,9 @@ app.post('/google', async(req, res) => {
             });
         }));
 
-    Usuario.findOne({
+    User.findOne({
         email: googleUser.email
-    }, (error, usuarioDb) => {
+    }, (error, userDb) => {
         if (error) {
             return res.status(400).json({
                 ok: false,
@@ -75,8 +71,8 @@ app.post('/google', async(req, res) => {
                 message: 'Ocurrio un error ingresando a la aplicación con Google',
             });
         }
-        if (usuarioDb) {
-            if (usuarioDb.google === false) {
+        if (userDb) {
+            if (userDb.google === false) {
                 return res.status(400).json({
                     ok: false,
                     error,
@@ -84,27 +80,27 @@ app.post('/google', async(req, res) => {
                 });
             } else {
                 const token = jwt.sign({
-                    usuario: usuarioDb
+                    user: userDb
                 }, process.env.TOKEN_SEED, {
                     expiresIn: process.env.TOKEN_EXPIRED,
                 });
 
                 res.json({
                     ok: true,
-                    usuarioDb,
+                    user: userDb,
                     token,
                 });
             }
         } else {
-            const user = new Usuario();
+            const user = new User();
 
-            user.nombre = googleUser.nombre;
+            user.name = googleUser.name;
             user.email = googleUser.email;
             user.img = googleUser.img;
             user.google = true;
             user.password = 'andTheMom?';
 
-            user.save((error, usuarioInserted) => {
+            user.save((error, userInserted) => {
                 if (error) {
                     return res.status(500).json({
                         ok: false,
@@ -114,14 +110,14 @@ app.post('/google', async(req, res) => {
                 }
 
                 const token = jwt.sign({
-                    usuario: usuarioInserted
+                    user: userInserted
                 }, process.env.TOKEN_SEED, {
                     expiresIn: process.env.TOKEN_EXPIRED,
                 });
 
                 res.json({
                     ok: true,
-                    usuario: usuarioInserted,
+                    user: userInserted,
                     token
                 });
             });
@@ -136,7 +132,7 @@ async function verify(token) {
     }));
     const payload = ticket.getPayload();
     return {
-        nombre: payload.name,
+        name: payload.name,
         email: payload.email,
         img: payload.picture,
         google: true

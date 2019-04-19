@@ -1,6 +1,5 @@
 const jwt = require('jsonwebtoken');
 
-
 let checkToken = (req, res, next) => {
     let token = req.get('Authorization');
     jwt.verify(token, process.env.TOKEN_SEED, (error, decoded) => {
@@ -12,13 +11,13 @@ let checkToken = (req, res, next) => {
                 },
             });
         }
-        req.usuario = decoded.usuario;
+        req.user = decoded.user;
         next();
     });
 };
 
 let checkAdmin = (req, res, next) => {
-    let user = req.usuario;
+    let user = req.user;
     if (user.role === 'ADMIN_ROLE') {
         next();
         return;
@@ -35,4 +34,4 @@ let checkAdmin = (req, res, next) => {
 module.exports = {
     checkToken,
     checkAdmin
-}
+};

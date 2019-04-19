@@ -16,7 +16,7 @@ mongoose.connect(process.env.URLDB, { useNewUrlParser: true, useCreateIndex: tru
 
     if (error) throw error;
 
-    console.log("Database Online.".yellow);
+    console.log("Base de datos OK.".yellow);
 });
 
 app.use(express.static(path.resolve(__dirname, '../public')));
