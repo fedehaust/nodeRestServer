@@ -18,7 +18,7 @@ app.get('/user', checkToken, (req, res) => {
         .skip(from)
         .exec((error, users) => {
             if (error) {
-                return res.status(400).json({
+                return res.status(500).json({
                     ok: false,
                     error,
                     message: 'Ocurrio un error obteniendo los usuarios'
@@ -26,7 +26,7 @@ app.get('/user', checkToken, (req, res) => {
             }
             User.countDocuments({ status: true }, (errorCount, count) => {
                 if (errorCount) {
-                    return res.status(400).json({
+                    return res.status(500).json({
                         ok: false,
                         errorCount,
                         message: 'Ocurrio un error contando los usuarios'
@@ -52,7 +52,7 @@ app.post('/user', [checkToken, checkAdmin], (req, res) => {
 
     user.save((error, userDb) => {
         if (error) {
-            return res.status(400).json({
+            return res.status(500).json({
                 ok: false,
                 error,
                 message: 'Ocurrio un error insertando el usuario'
@@ -77,7 +77,7 @@ app.put('/user/:id', [checkToken, checkAdmin], (req, res) => {
         context: 'query'
     }, (error, userDb) => {
         if (error) {
-            return res.status(400).json({
+            return res.status(500).json({
                 ok: false,
                 error,
                 message: 'Ocurrio un error actualizando el usuario'
@@ -99,10 +99,10 @@ app.delete('/user/:id', [checkToken, checkAdmin], (req, res) => {
         runValidators: true
     }, (error, userDb) => {
         if (error) {
-            return res.status(400).json({
+            return res.status(500).json({
                 ok: false,
                 error,
-                message: 'Ocurrio un error insertando el usuario'
+                message: 'Ocurrio un error borrando el usuario'
             });
         }
 
