@@ -31,7 +31,24 @@ let checkAdmin = (req, res, next) => {
     });
 };
 
+let checkTokenImg = (req, res, next) => {
+    let token = req.query.token;
+    jwt.verify(token, process.env.TOKEN_SEED, (error, decoded) => {
+        if (error) {
+            return res.status(401).json({
+                ok: false,
+                error: {
+                    message: 'Debe tener un token válido.'
+                },
+            });
+        }
+        req.user = decoded.user;
+        next();
+    });
+};
+
 module.exports = {
     checkToken,
-    checkAdmin
+    checkAdmin,
+    checkTokenImg
 };

@@ -137,7 +137,7 @@ app.post('/product', [checkToken], (req, res) => {
             ok: true,
             productDb
         });
-    })
+    });
 
 });
 

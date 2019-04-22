@@ -8,7 +8,8 @@ var productoSchema = new Schema({
     description: { type: String, required: false },
     available: { type: Boolean, required: true, default: true },
     categoryId: { type: Schema.Types.ObjectId, ref: 'Category', required: true },
-    userId: { type: Schema.Types.ObjectId, ref: 'User' }
+    userId: { type: Schema.Types.ObjectId, ref: 'User' },
+    img: { type: String, required: false }
 });
 
 
