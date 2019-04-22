@@ -55,6 +55,29 @@ app.put('/upload/:type/:id', function(req, res) {
     const filename = `${id}-${new Date().getMilliseconds()}.${fileExtension}`;
 
 
+
+    try {
+        fs.mkdirSync(path.resolve(__dirname, `../../uploads`));
+    } catch (err) {
+        if (err.code !== 'EEXIST') {
+            return res.status(500).json({
+                ok: false,
+                error: err
+            });
+        }
+    }
+    try {
+        fs.mkdirSync(path.resolve(__dirname, `../../uploads/${type}`));
+    } catch (err) {
+        if (err.code !== 'EEXIST') {
+            return res.status(500).json({
+                ok: false,
+                error: err
+            });
+        }
+    }
+
+
     file.mv(`uploads/${type}/${filename}`, (error) => {
         if (error) {
             return res.status(500).json({
